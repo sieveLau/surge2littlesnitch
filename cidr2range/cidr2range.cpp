@@ -103,6 +103,7 @@ string cidr2range(const string &cidr) {
     int domain = 4;
     in_addr in4;
     in6_addr in6;
+//    string bit_str;
     auto inet_result = inet_pton(AF_INET, ci.c_str(), &in4);
     if (inet_result > 0) {
         printBinaryValue2(in4.s_addr);
@@ -110,17 +111,66 @@ string cidr2range(const string &cidr) {
         std::bitset<IPV4_LENGTH> bit(in4.s_addr);
         bit = reverse_by_group(bit, IPV4_LENGTH / 4);
         cout << bit << endl;
-        dr=IPV4_LENGTH;
+        dr=32;
+        bitset<32> netmask_in_binary;
+        netmask_in_binary.set();
+        if (ci_dr != std::string::npos) dr = stoi(cidr.substr(ci_dr+1));
+        int bits_to_move = 32 - dr;
+        netmask_in_binary <<= bits_to_move;
+        auto begin_addr_in_binary = bit & netmask_in_binary;
+        auto end_addr_in_binary = bit | netmask_in_binary.flip();
+        auto begin_bit = reverse_by_group(begin_addr_in_binary, 8);
+        auto end_bit = reverse_by_group(end_addr_in_binary, 8);
+        char end_text[IPV4_LENGTH];
+        char begin_text[IPV4_LENGTH];
+        in4.s_addr=begin_bit.to_ulong();
+        inet_ntop(AF_INET, &in4, begin_text, IPV4_LENGTH);
+        in4.s_addr=end_bit.to_ulong();
+        inet_ntop(AF_INET, &in4, end_text, IPV4_LENGTH);
+        auto* fmt = "%s-%s";
+
+        char range_buffer[31]{'\0'};
+        snprintf(range_buffer,31,fmt,begin_text,end_text);
+        cout << range_buffer <<endl;
+        return range_buffer;
     } else if ( (inet_result = inet_pton(AF_INET6, ci.c_str(), &in6))>0 ) {
+        string bits;
+        for(int i = 0; i < 16; ++i){
+            std::bitset<8> bit(in6.s6_addr[i]);
+            cout<<i<<bit.to_string()<<endl;
+        }
+
         std::bitset<IPV6_LENGTH> bit(in6.s6_addr);
-        bit = reverse_by_group(bit, IPV6_LENGTH / 8);
+
+        bit = reverse_by_group(bit, 16);
         cout << bit << endl;
-        dr=IPV6_LENGTH;
-        domain = 6;
+        dr=128;
+        bitset<128> netmask_in_binary;
+        netmask_in_binary.set();
+        if (ci_dr != std::string::npos) dr = stoi(cidr.substr(ci_dr+1));
+        int bits_to_move = 128 - dr;
+        netmask_in_binary <<= bits_to_move;
+        auto begin_addr_in_binary = bit & netmask_in_binary;
+        auto end_addr_in_binary = bit | netmask_in_binary.flip();
+        auto begin_bit = reverse_by_group(begin_addr_in_binary, 16);
+        auto end_bit = reverse_by_group(end_addr_in_binary, 16);
+        char end_text[IPV6_LENGTH];
+        char begin_text[IPV6_LENGTH];
+//        in6.s6_addr=begin_bit.to_ulong();
+        inet_ntop(AF_INET, &in4, begin_text, IPV4_LENGTH);
+//        in4.s_addr=end_bit.to_ulong();
+        inet_ntop(AF_INET, &in4, end_text, IPV4_LENGTH);
+        auto* fmt = "%s-%s";
+
+        char range_buffer[31]{'\0'};
+        snprintf(range_buffer,31,fmt,begin_text,end_text);
+        cout << range_buffer <<endl;
+        return range_buffer;
     } else {
         std::cerr << "Not a valid address." << endl;
         return "";
     }
+
 
 //
 //
