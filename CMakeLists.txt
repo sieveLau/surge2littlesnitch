@@ -2,12 +2,15 @@ cmake_minimum_required(VERSION 3.15)
 
 project(surge2littlesnitch)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 ADD_SUBDIRECTORY(ext/curlcpp)
 INCLUDE_DIRECTORIES(ext/curlcpp)
 ADD_SUBDIRECTORY(ext/json)
 INCLUDE_DIRECTORIES(ext/json)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+add_subdirectory(ext/gtest)
+include_directories(ext/gtest/googletest)
 
 add_subdirectory(cidr2range)
 
