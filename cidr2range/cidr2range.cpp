@@ -1,12 +1,9 @@
 #include "cidr2range.hpp"
-#include <arpa/inet.h>
 #include <array>
 #include <bitset>
 #include <cmath>
-#include <netinet/in.h>
 #include <regex>
 #include <string>
-#include <sys/socket.h>
 using std::bitset;
 using std::cmatch;
 using std::cout;
@@ -39,9 +36,9 @@ std::bitset<N> reverse_by_group(const std::bitset<N> &b, size_t bit_per_group) {
     // 根据bit_per_group的数字位数来计算需要占用char[]的多少位
     // log10(n)向上取整就是10进制数的字符串形式需要占用的char数量
     size_t size_for_the_number = ceil(log10(bit_per_group));
-    // 分配数组内存，数量=reg_fmt_str的长度-3-数字要占用的char位+1
-    // 3是%lu，3个char；+1是结尾'\0'
-    auto *reg_str = new char[strlen(reg_fmt_str) - 2 + size_for_the_number]{'\0'};
+    // 分配数组内存，数量=reg_fmt_str的长度-3-数字要占用的char位
+    // 3是%lu，3个char
+    auto *reg_str = new char[sizeof(reg_fmt_str) - 3 + size_for_the_number]{'\0'};
     snprintf(reg_str, sizeof(reg_str), reg_fmt_str, bit_per_group);
     std::regex reg(reg_str);
     delete[] reg_str;

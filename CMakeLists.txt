@@ -8,6 +8,9 @@ ADD_SUBDIRECTORY(ext/curlcpp)
 INCLUDE_DIRECTORIES(ext/curlcpp)
 ADD_SUBDIRECTORY(ext/json)
 INCLUDE_DIRECTORIES(ext/json)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+add_subdirectory(ext/gtest)
+include_directories(ext/gtest/googletest)
 
 add_subdirectory(cidr2range)
 
