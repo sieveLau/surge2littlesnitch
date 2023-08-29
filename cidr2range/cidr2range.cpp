@@ -88,85 +88,87 @@ void printBinaryValue2(unsigned int num) {
     }
 }
 
-string cidr2range(const string &cidr) {
+//std::string start_and_end()
 
+string cidr2range(const string &cidr) {
+    const int IPV4_LENGTH = 32;
+    const int IPV6_LENGTH = 128;
     //   unsigned char buf[sizeof(struct in6_addr)];
-    in_addr in;
 
     auto ci_dr = cidr.find_first_of('/');
-    string ci, dr;
+    string ci;
+    int dr;
     ci = cidr.substr(0, ci_dr);
 
-    auto inet_result = inet_pton(AF_INET, ci.c_str(), &in);
+    int domain = 4;
+    in_addr in4;
+    in6_addr in6;
+    auto inet_result = inet_pton(AF_INET, ci.c_str(), &in4);
     if (inet_result > 0) {
-        printBinaryValue2(in.s_addr);
+        printBinaryValue2(in4.s_addr);
         putchar('\n');
-        std::bitset<sizeof(in_addr) * 8> bit(in.s_addr);
-        bit = reverse_by_group(bit, 8);
+        std::bitset<IPV4_LENGTH> bit(in4.s_addr);
+        bit = reverse_by_group(bit, IPV4_LENGTH / 4);
         cout << bit << endl;
+        dr=IPV4_LENGTH;
+    } else if ( (inet_result = inet_pton(AF_INET6, ci.c_str(), &in6))>0 ) {
+        std::bitset<IPV6_LENGTH> bit(in6.s6_addr);
+        bit = reverse_by_group(bit, IPV6_LENGTH / 8);
+        cout << bit << endl;
+        dr=IPV6_LENGTH;
+        domain = 6;
+    } else {
+        std::cerr << "Not a valid address." << endl;
+        return "";
     }
-    if (ci_dr != std::string::npos) {
-        dr = cidr.substr(ci_dr + 1);
-    }
 
-    // string ip = "118.89.204.198/23";
-    regex ipv4(R"((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})((\/)(\d{1,2}))?)");
-    cmatch m;
-    char ipv4_result_range[32] = {'\0'};
-    const char *ipv4_range_fmt = "%lu.%lu.%lu.%lu-%lu.%lu.%lu.%lu";
-    if (regex_match(cidr.c_str(), m, ipv4)) {
-        auto first_eight_bits = stoi(m[1]);
-        auto second_eight_bits = stoi(m[2]);
-        auto third_eight_bits = stoi(m[3]);
-        auto forth_eight_bits = stoi(m[4]);
-
-        bitset<32> origin_in_binary
-            ((first_eight_bits << 24) + (second_eight_bits << 16) + (third_eight_bits << 8) + forth_eight_bits);
-        cout << origin_in_binary << endl;
-        bitset<32> netmask_in_binary;
-        netmask_in_binary.set();
-
-        if (m.size() > 6) {
-            int origin_netmask_from_cidr = 32;
-            // auto netmask_str = m[7].str();
-            origin_netmask_from_cidr = stoi(m[7]);
-            // cout<<origin_netmask_from_cidr<<endl;
-            int bits_to_move = 32 - origin_netmask_from_cidr;
-            netmask_in_binary <<= bits_to_move;
-        }
-        // cout<<netmask_in_binary<<endl;
-        // cout<<origin_in_binary<<endl;
-        auto begin_addr_in_binary = origin_in_binary & netmask_in_binary;
-        auto end_addr_in_binary = origin_in_binary | netmask_in_binary.flip();
-
-        const bitset<32> one("11111111000000000000000000000000");
-        const bitset<32> two("00000000111111110000000000000000");
-        const bitset<32> three("00000000000000001111111100000000");
-        const bitset<32> four("00000000000000000000000011111111");
-
-        // cout<<begin_addr_in_binary<<endl;
-        // cout<<end_addr_in_binary<<endl;
-        snprintf(ipv4_result_range, std::size(ipv4_result_range),
-                 ipv4_range_fmt,
-                 ((begin_addr_in_binary & one) >> 24).to_ulong(),
-                 ((begin_addr_in_binary & two) >> 16).to_ulong(),
-                 ((begin_addr_in_binary & three) >> 8).to_ulong(),
-                 (begin_addr_in_binary & four).to_ulong(),
-                 ((end_addr_in_binary & one) >> 24).to_ulong(),
-                 ((end_addr_in_binary & two) >> 16).to_ulong(),
-                 ((end_addr_in_binary & three) >> 8).to_ulong(),
-                 (end_addr_in_binary & four).to_ulong());
-        // cout<<((begin_addr_in_binary & one)>>24).to_ulong()<<endl;
-        // cout<<((begin_addr_in_binary & two)>>16).to_ulong()<<endl;
-        // cout<<((begin_addr_in_binary & three)>>8).to_ulong()<<endl;
-        // cout<<(begin_addr_in_binary & four).to_ulong()<<endl;
-
-        // cout<<((end_addr_in_binary & one)>>24).to_ulong()<<endl;
-        // cout<<((end_addr_in_binary & two)>>16).to_ulong()<<endl;
-        // cout<<((end_addr_in_binary & three)>>8).to_ulong()<<endl;
-        // cout<<(end_addr_in_binary & four).to_ulong()<<endl;
-        cout << ipv4_result_range << endl;
-        return ipv4_result_range;
-    }
+//
+//
+//    if (regex_match(cidr.c_str(), m, ipv4)) {
+//        auto first_eight_bits = stoi(m[1]);
+//        auto second_eight_bits = stoi(m[2]);
+//        auto third_eight_bits = stoi(m[3]);
+//        auto forth_eight_bits = stoi(m[4]);
+//
+//        bitset<32> origin_in_binary
+//            ((first_eight_bits << 24) + (second_eight_bits << 16) + (third_eight_bits << 8) + forth_eight_bits);
+//        cout << origin_in_binary << endl;
+//        bitset<32> netmask_in_binary;
+//        netmask_in_binary.set();
+//
+//        // cout<<netmask_in_binary<<endl;
+//        // cout<<origin_in_binary<<endl;
+//        auto begin_addr_in_binary = origin_in_binary & netmask_in_binary;
+//        auto end_addr_in_binary = origin_in_binary | netmask_in_binary.flip();
+//
+//        const bitset<32> one("11111111000000000000000000000000");
+//        const bitset<32> two("00000000111111110000000000000000");
+//        const bitset<32> three("00000000000000001111111100000000");
+//        const bitset<32> four("00000000000000000000000011111111");
+//
+//        // cout<<begin_addr_in_binary<<endl;
+//        // cout<<end_addr_in_binary<<endl;
+//        snprintf(ipv4_result_range, std::size(ipv4_result_range),
+//                 ipv4_range_fmt,
+//                 ((begin_addr_in_binary & one) >> 24).to_ulong(),
+//                 ((begin_addr_in_binary & two) >> 16).to_ulong(),
+//                 ((begin_addr_in_binary & three) >> 8).to_ulong(),
+//                 (begin_addr_in_binary & four).to_ulong(),
+//                 ((end_addr_in_binary & one) >> 24).to_ulong(),
+//                 ((end_addr_in_binary & two) >> 16).to_ulong(),
+//                 ((end_addr_in_binary & three) >> 8).to_ulong(),
+//                 (end_addr_in_binary & four).to_ulong());
+//        // cout<<((begin_addr_in_binary & one)>>24).to_ulong()<<endl;
+//        // cout<<((begin_addr_in_binary & two)>>16).to_ulong()<<endl;
+//        // cout<<((begin_addr_in_binary & three)>>8).to_ulong()<<endl;
+//        // cout<<(begin_addr_in_binary & four).to_ulong()<<endl;
+//
+//        // cout<<((end_addr_in_binary & one)>>24).to_ulong()<<endl;
+//        // cout<<((end_addr_in_binary & two)>>16).to_ulong()<<endl;
+//        // cout<<((end_addr_in_binary & three)>>8).to_ulong()<<endl;
+//        // cout<<(end_addr_in_binary & four).to_ulong()<<endl;
+//        cout << ipv4_result_range << endl;
+//        return ipv4_result_range;
+//    }
     return "";
 }
