@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
-#include <regex>
 #include <bitset>
 #include <iostream>
+#include <regex>
+#include <string>
 #ifdef _WIN32
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
