@@ -35,7 +35,7 @@ string cidr2range(const string &cidr) {
     string ci, return_val;
     ci = cidr.substr(0, ci_dr);
 
-    unsigned char in[sizeof(struct in6_addr)](0x0);
+    unsigned char in[sizeof(struct in6_addr)]{0x0};
     auto inet_result = inet_pton(AF_INET, ci.c_str(), &in);
 
     if (inet_result > 0) {
