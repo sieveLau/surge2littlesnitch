@@ -1,5 +1,3 @@
-#include <cstdio>
-#include <fstream>
 #include <iostream>
 #include <ostream>
 #include <regex>
@@ -10,7 +8,6 @@
 #include "include/curl_ios.h"
 #include "include/nlohmann/json.hpp"
 #include "cidr2range/cidr2range.hpp"
-#include "rule_holder.hpp"
 
 using std::cout;
 using std::endl;

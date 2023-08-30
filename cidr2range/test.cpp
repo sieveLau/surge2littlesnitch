@@ -1,5 +1,5 @@
 #include "cidr2range.hpp"
-#include "include/gtest/gtest.h"
+#include "gtest/gtest.h"
 
 TEST(IPV4, FREE_BIT_NOT_ALIGNED) {
     EXPECT_STREQ(cidr2range("118.89.204.198/23").c_str(), "118.89.204.0-118.89.205.255");
