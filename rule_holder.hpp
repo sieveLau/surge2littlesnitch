@@ -1,6 +1,8 @@
+#pragma once
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 
 class rule_holder {
     std::vector<std::string> hosts;
@@ -30,4 +32,9 @@ public:
     swap(*this, another);
   }
   ~rule_holder() = default;
+
+  void add_domain(std::string domain, bool host = false);
+  void add_ip(std::string ip);
+
+  std::map<std::string,std::string> to_string();
 };
